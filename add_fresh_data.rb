@@ -1,6 +1,30 @@
 # Takes pertinent data from a live log file
 # and writes it to another file
 
+class Hits
+  def initialize(input, output)
+    @hits = []
+    @input = input
+    @output = output
+  end
+
+  def latest
+    input.each { |i| @hits << check_input(i) }
+    @hits.uniq.compact
+  end
+
+  private
+
+  def check_input(input)
+    return if input_exists?(input)
+    input
+  end
+
+  def input_exists?(input)
+    output.any? { |o| input.include? o }
+  end
+end
+
 def input_file
   '/home/you/log_log.log'
 end
@@ -38,12 +62,6 @@ rescue
   false
 end
 
-def new_entries(input, output)
-  entries = []
-  input.each { |e| entries << e unless output.include? e }
-  entries.uniq
-end
-
 def next_number
   @next_number ||= number_from_file
 end
@@ -61,6 +79,7 @@ def append_to_output_file(entries)
       puts "Adding #{entry}"
       file.puts entry
       @next_number += 1
+      @next_number = 1 if @next_number > 15
     end
   end
 end
@@ -72,6 +91,6 @@ end
 loop do
   input_entries = matching_lines_to_array(input_file, input_regex)
   output_entries = matching_lines_to_array(output_file, output_regex)
-  append_to_output_file(new_entries(input_entries, output_entries))
+  append_to_output_file(Hits.new(input_entries, output_entries).latest)
   pause
 end
