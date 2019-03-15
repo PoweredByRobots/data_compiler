@@ -9,14 +9,14 @@ class Hits
   end
 
   def latest
-    input.each { |i| @hits << i unless input_exists?(i) }
+    @input.each { |i| @hits << i unless input_exists?(i) }
     @hits.uniq.compact
   end
 
   private
 
   def input_exists?(input)
-    output.any? { |o| input.include? o }
+    @output.any? { |o| input.include? o }
   end
 end
 
